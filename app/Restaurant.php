@@ -18,6 +18,11 @@ class Restaurant extends Model
         return $this->hasMany('App\Food');
     }
 
+    public function tables()
+    {
+        return $this->hasMany('App\Table');
+    }
+
     public function favorites()
     {
         return $this->hasMany('App\Favorite');
