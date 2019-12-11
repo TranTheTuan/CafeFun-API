@@ -4,7 +4,7 @@ namespace App\Http\Resources;
 
 use Illuminate\Http\Resources\Json\JsonResource;
 
-class FoodResource extends JsonResource
+class RatingResource extends JsonResource
 {
     /**
      * Transform the resource into an array.
@@ -16,11 +16,9 @@ class FoodResource extends JsonResource
     {
         return [
             'id' => $this->id,
-            'name' => $this->name,
-            'price' => $this->price,
-            'number' => $this->whenPivotLoaded('food_order', function() {
-                return $this->pivot->number;
-            })
+            'point' => $this->point,
+            'review' => $this->review,
+            'customer' => $this->user
         ];
     }
 }

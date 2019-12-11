@@ -7,6 +7,7 @@ use App\Http\Controllers\Controller;
 use App\Restaurant;
 use App\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Gate;
 
 class UserController extends Controller
@@ -45,4 +46,24 @@ class UserController extends Controller
         return response()->json(['message' => 'Unauthorized'], 401);
     }
 
+    public function notifications()
+    {
+        $user = Auth::user();
+        $notifications = $user->notifications;
+        return response()->json(['notifications' => $notifications]);
+    }
+
+    public function unreadNotifications()
+    {
+        $user = Auth::user();
+        $notifications = $user->unreadNotifications;
+        return response()->json(['notifications' => $notifications]);
+    }
+
+    public function markAsRead()
+    {
+        $user = Auth::user();
+        $user->unreadNotifications->markAsRead();
+        return response()->json(['notifications' => 'read']);;
+    }
 }

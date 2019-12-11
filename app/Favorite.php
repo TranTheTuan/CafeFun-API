@@ -13,7 +13,7 @@ class Favorite extends Model
         return $this->belongsTo('App\User');
     }
 
-    public function restaurants()
+    public function restaurant()
     {
         return $this->belongsTo('App\Restaurant');
     }

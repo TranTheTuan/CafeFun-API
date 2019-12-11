@@ -37,8 +37,28 @@ Route::middleware('auth:api')->group(function(){
     Route::put('restaurants/{restaurant}/tables/{id}', 'API\TableController@update');
     Route::delete('restaurants/{restaurant}/tables/{id}', 'API\TableController@delete');
 
+    // rating api
+    Route::get('restaurants/{restaurant}/ratings', 'API\RatingController@index');
+    Route::get('restaurants/{restaurant}/ratings/{id}', 'API\RatingController@show');
+    Route::post('restaurants/{restaurant}/ratings', 'API\RatingController@store');
+    Route::delete('restaurants/{restaurant}/ratings/{id}', 'API\RatingController@delete');
+
+    // fovorite
+    Route::get('favorites', 'API\FavoriteController@index');
+    Route::post('favorites/{restaurant}', 'API\FavoriteController@store');
+    Route::delete('favorites/{restaurant}', 'API\FavoriteController@delete');
+
+    // order api
+    Route::get('orders', 'API\OrderController@index');
+    Route::get('orders/{id}', 'API\OrderController@show');
+    Route::post('restaurants/{restaurant}/orders', 'API\OrderController@store');
+    Route::put('restaurants/{restaurant}/orders/{id}', 'API\OrderController@update');
+
     // user api
     Route::post('restaurants/{restaurant}/staff/appoint/{user}', 'API\UserController@appoint');
+    Route::get('notifications', 'API\UserController@notifications');
+    Route::get('unread_notifications', 'API\UserController@unreadNotifications');
+    Route::post('mark_as_read', 'API\UserController@markAsRead');
 
     Route::post('logout', 'API\AuthController@logout');
 });
