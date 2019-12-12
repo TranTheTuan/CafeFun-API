@@ -3,13 +3,15 @@
 namespace App\Http\Controllers\API;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\LoginRequest;
+use App\Http\Requests\RegisterRequest;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\User;
 
 class AuthController extends Controller
 {
-    public function login(Request $request)
+    public function login(LoginRequest $request)
     {
         $credentials = [
             'email' => $request->email,
@@ -23,7 +25,7 @@ class AuthController extends Controller
         return response()->json(['token' => $token]);
     }
 
-    public function register(Request $request)
+    public function register(RegisterRequest $request)
     {
         $user = User::create([
             'name' => $request->name,
@@ -33,7 +35,7 @@ class AuthController extends Controller
         $token = $user->createToken('Personal access token');
         return response()->json(['token' => $token]);
     }
- 
+
     public function logout()
     {
         $user = Auth::user();

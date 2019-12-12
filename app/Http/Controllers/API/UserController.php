@@ -14,10 +14,10 @@ use Illuminate\Support\Facades\Gate;
 
 class UserController extends Controller
 {
-    public function show($id)
+    public function show($user)
     {
         try {
-            $user = User::findOrFail($id);
+            $user = User::findOrFail($user);
             return new UserResource($user);
         } catch (ModelNotFoundException $exception) {
             return response()->json(['error' => $exception->getMessage()]);

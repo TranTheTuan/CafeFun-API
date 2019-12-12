@@ -30,12 +30,10 @@ class AuthServiceProvider extends ServiceProvider
         Gate::define('manage', function($user, $restaurant) {
             $can_manage = false;
             $employee = $user->employee;
-            if(!is_null($employee)) {
+            if($employee) {
                 if($restaurant->employees->contains($employee)) {
-                    foreach($employee->roles as $role) {
-                        if($role->pivot->role_id == 1) {
-                            $can_manage = true;
-                        }
+                    if($employee->roles->contains(1)) {
+                        $can_manage = true;
                     }
                 }
             }
@@ -48,14 +46,12 @@ class AuthServiceProvider extends ServiceProvider
         Gate::define('order', function($user, $restaurant) {
             $can_order = false;
             $employee = $user->employee;
-            if(is_null($employee)) {
+            if(!$employee) {
                 $can_order = true;
             } else {
                 if($restaurant->employees->contains($employee)) {
-                    foreach($employee->roles as $role) {
-                        if($role->pivot->role_id == 3) {
-                            $can_order = true;
-                        }
+                    if($employee->roles->contains(3)) {
+                        $can_order = true;
                     }
                 }
             }
@@ -65,19 +61,22 @@ class AuthServiceProvider extends ServiceProvider
         Gate::define('handle_order', function($user, $restaurant) {
             $can_handle_order = false;
             $employee = $user->employee;
-            if(!is_null($employee)) {
+            if($employee) {
                 if($restaurant->employees->contains($employee)) {
-                    foreach($employee->roles as $role) {
-                        if($role->pivot->role_id == 2) {
-                            $can_handle_order = true;
-                        }
+                    if($employee->roles->contains(2)) {
+                        $can_handle_order = true;
                     }
                 }
             }
-            if($restaurant->user->is($user)) {
-                $can_handle_order = true;
-            }
             return $can_handle_order;
+        });
+
+        Gate::define('delete_rating', function($user, $rating) {
+            $can_delete_rating = false;
+            if($user->ratings->contains($rating)) {
+                $can_delete_rating = true;
+            }
+            return $can_delete_rating;
         });
     }
 }

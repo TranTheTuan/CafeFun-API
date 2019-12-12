@@ -24,10 +24,10 @@ class OrderController extends Controller
         return OrderResource::collection($orders);
     }
 
-    public function show($id)
+    public function show($order)
     {
         try {
-            $order = Auth::user()->orders()->findOrFail($id);
+            $order = Auth::user()->orders()->findOrFail($order);
             return new OrderResource($order);
         } catch (ModelNotFoundException $exception) {
             return response()->json(['error' => $exception->getMessage()]);
@@ -51,11 +51,11 @@ class OrderController extends Controller
         return response()->json(['error' => 'Unauthorized'], 401);
     }
 
-    public function update(Request $request, Restaurant $restaurant, $id)
+    public function update(Request $request, Restaurant $restaurant, $order)
     {
         if(Gate::allows('handle_order', $restaurant)) {
             try {
-                $order = Order::findOrFail($id);
+                $order = Order::findOrFail($order);
                 $status = $request->status;
                 $order->update(['status' => $status]);
                 if($status == 1) {

@@ -20,7 +20,7 @@ class FavoriteController extends Controller
         return RestaurantResource::collection($restaurants);
     }
 
-    public function store(Request $request, Restaurant $restaurant)
+    public function store(Restaurant $restaurant)
     {
         $favorite = Favorite::firstOrCreate(['user_id' => Auth::id(), 'restaurant_id' => $restaurant->id]);
         return new RestaurantResource($favorite->restaurant);

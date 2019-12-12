@@ -2,7 +2,9 @@
 
 namespace App\Http\Controllers\API;
 
+use App\Food;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\FoodRequest;
 use App\Http\Resources\FoodResource;
 use App\Restaurant;
 use Illuminate\Support\Facades\Gate;
@@ -17,17 +19,17 @@ class FoodController extends Controller
         return FoodResource::collection($foods);
     }
 
-    public function show(Restaurant $restaurant, $id)
+    public function show(Restaurant $restaurant, $food)
     {
         try {
-            $searched_food = $restaurant->foods()->findOrFail($id);
+            $searched_food = $restaurant->foods()->findOrFail($food);
             return new FoodResource($searched_food);
         } catch (ModelNotFoundException $exception) {
             return response()->json(['error' => $exception->getMessage()], 404);
         }
     }
 
-    public function store(Request $request, Restaurant $restaurant)
+    public function store(FoodRequest $request, Restaurant $restaurant)
     {
         if(Gate::allows('manage', $restaurant)) {
             $food = $restaurant->foods()->create($request->all());
@@ -36,25 +38,31 @@ class FoodController extends Controller
         return response()->json(['message' => 'Unauthorized'], 401);
     }
 
-    public function update(Request $request, Restaurant $restaurant, $id)
+    public function update(Request $request, Restaurant $restaurant, $food)
     {
-        try {
-            $food = $restaurant->foods()->findOrFail($id);
-            $food->update($request->all());
-            return new FoodResource($food);
-        } catch(ModelNotFoundException $exception) {
-            return response()->json(['error' => $exception->getMessage()], 404);
+        if(Gate::allows('manage', $restaurant)) {
+            try {
+                $food = $restaurant->foods()->findOrFail($food);
+                $food->update($request->all());
+                return new FoodResource($food);
+            } catch(ModelNotFoundException $exception) {
+                return response()->json(['error' => $exception->getMessage()], 404);
+            }
         }
+        return response()->json(['message' => 'Unauthorized'], 401);
     }
 
-    public function delete(Restaurant $restaurant, $id)
+    public function delete(Restaurant $restaurant, $food)
     {
-        try {
-            $food = $restaurant->foods()->findOrFail($id);
-            $food->delete();
-            return response()->json(['message' => 'food deleted']);
-        } catch(ModelNotFoundException $exception) {
-            return response()->json(['error' => $exception->getMessage()], 404);
+        if(Gate::allows('manage', $restaurant)) {
+            try {
+                $food = $restaurant->foods()->findOrFail($food);
+                $food->delete();
+                return response()->json(['message' => 'food deleted']);
+            } catch(ModelNotFoundException $exception) {
+                return response()->json(['error' => $exception->getMessage()], 404);
+            }
         }
+        return response()->json(['message' => 'Unauthorized'], 401);
     }
 }

@@ -9,6 +9,7 @@ use App\Rating;
 use App\Http\Resources\RatingResource;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Gate;
 
 class RatingController extends Controller
 {
@@ -18,10 +19,10 @@ class RatingController extends Controller
         return RatingResource::collection($ratings);
     }
 
-    public function show(Restaurant $restaurant, $id)
+    public function show(Restaurant $restaurant, $rating)
     {
         try {
-            $ratings = $restaurant->ratings()->findOrFail($id);
+            $ratings = $restaurant->ratings()->findOrFail($rating);
             return new RatingResource($ratings);
         } catch (ModelNotFoundException $exception) {
             return response()->json(['error' => $exception->getMessage()]);
@@ -39,14 +40,17 @@ class RatingController extends Controller
         return new RatingResource($rating);
     }
 
-    public function delete(Restaurant $restaurant, $id)
+    public function delete(Restaurant $restaurant, $rating)
     {
-        try {
-            $rating = $restaurant->ratings()->findOrFail($id);
-            $rating->delete();
-            return response()->json(['message' => 'deleted']);
-        } catch (ModelNotFoundException $exception) {
-            return response()->json(['error' => $exception->getMessage()]);
+        if(Gate::allows('delete_rating', $rating)) {
+            try {
+                $rating = $restaurant->ratings()->findOrFail($rating);
+                $rating->delete();
+                return response()->json(['message' => 'deleted']);
+            } catch (ModelNotFoundException $exception) {
+                return response()->json(['error' => $exception->getMessage()]);
+            }
         }
+        return response()->json(['message' => 'Unauthorized'], 401);
     }
 }
