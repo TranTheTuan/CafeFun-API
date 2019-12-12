@@ -59,7 +59,8 @@ Route::middleware('auth:api')->group(function(){
     Route::get('notifications', 'API\UserController@notifications');
     Route::get('unread_notifications', 'API\UserController@unreadNotifications');
     Route::post('mark_as_read', 'API\UserController@markAsRead');
-
+    Route::get('users/{id}', 'API\UserController@show');
+    
     Route::post('logout', 'API\AuthController@logout');
 });
 

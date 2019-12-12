@@ -13,6 +13,7 @@ use App\Restaurant;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
+use Illuminate\Support\Facades\Gate;
 
 class OrderController extends Controller
 {
@@ -35,34 +36,40 @@ class OrderController extends Controller
 
     public function store(Request $request, Restaurant $restaurant)
     {
-        $ordered_table = $request->table;
-        $ordered_foods = $request->foods;
-        $order = Order::create(['user_id' => Auth::id(),
-                                'table_id' => $ordered_table,
-                                'restaurant_id' => $restaurant->id]);
-        foreach($ordered_foods as $ordered_food) {
-            $order->foods()->attach($ordered_food[0], ['number' => $ordered_food[1]]);
+        if(Gate::allows('order', $restaurant)) {
+            $ordered_table = $request->table;
+            $ordered_foods = $request->foods;
+            $order = Order::create(['user_id' => Auth::id(),
+                                    'table_id' => $ordered_table,
+                                    'restaurant_id' => $restaurant->id]);
+            foreach($ordered_foods as $ordered_food) {
+                $order->foods()->attach($ordered_food[0], ['number' => $ordered_food[1]]);
+            }
+            event(new OrderMadeEvent($order));
+            return new OrderResource(($order));
         }
-        event(new OrderMadeEvent($order));
-        return new OrderResource(($order));
+        return response()->json(['error' => 'Unauthorized'], 401);
     }
 
     public function update(Request $request, Restaurant $restaurant, $id)
     {
-        try {
-            $order = Order::findOrFail($id);
-            $status = $request->status;
-            $order->update(['status' => $status]);
-            if($status == 1) {
-                event(new OrderAcceptedEvent($order));
-            } elseif($status == 2) {
-                event(new OrderDoneEvent($order));
-            } else {
-                event(new OrderCancelEvent($order));
+        if(Gate::allows('handle_order', $restaurant)) {
+            try {
+                $order = Order::findOrFail($id);
+                $status = $request->status;
+                $order->update(['status' => $status]);
+                if($status == 1) {
+                    event(new OrderAcceptedEvent($order));
+                } elseif($status == 2) {
+                    event(new OrderDoneEvent($order));
+                } else {
+                    event(new OrderCancelEvent($order));
+                }
+                return response()->json(['message' => 'updated']);
+            } catch (ModelNotFoundException $exception) {
+                return response()->json(['error' => $exception->getMessage()]);
             }
-            return response()->json(['message' => 'updated']);
-        } catch (ModelNotFoundException $exception) {
-            return response()->json(['error' => $exception->getMessage()]);
         }
+        return response()->json(['error' => 'Unauthorized'], 401);
     }
 }
