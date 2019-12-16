@@ -32,7 +32,12 @@ class OrderAcceptedNotification extends Notification
      */
     public function via($notifiable)
     {
-        return ['database'];
+        return ['database', 'mail'];
+    }
+
+    public function toMail($notifiable)
+    {
+        return (new MailMessage)->markdown('mails.orders.order-accepted', ['order' => $this->order]);
     }
 
     /**

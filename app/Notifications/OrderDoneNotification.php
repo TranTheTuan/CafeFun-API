@@ -32,7 +32,12 @@ class OrderDoneNotification extends Notification
      */
     public function via($notifiable)
     {
-        return ['database'];
+        return ['database', 'mail'];
+    }
+
+    public function toMail($notifiable)
+    {
+        return (new MailMessage)->markdown('mails.orders.order-done', ['order' => $this->order]);
     }
 
     /**
