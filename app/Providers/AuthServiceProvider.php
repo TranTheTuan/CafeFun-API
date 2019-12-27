@@ -46,7 +46,7 @@ class AuthServiceProvider extends ServiceProvider
         Gate::define('order', function($user, $restaurant) {
             $can_order = false;
             $employee = $user->employee;
-            if(!$employee) {
+            if(!$employee && !$user->restaurants->contains($restaurant)) {
                 $can_order = true;
             } else {
                 if($restaurant->employees->contains($employee)) {

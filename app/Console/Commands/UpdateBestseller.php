@@ -22,7 +22,7 @@ class UpdateBestseller extends Command
      *
      * @var string
      */
-    protected $description = 'Command description';
+    protected $description = 'update bestseller food';
 
     /**
      * Create a new command instance.
